@@ -9,7 +9,13 @@ class Container < Docker::Container
   def logs(metadata,opts = {})
     logstash_sender = LogstashSender.new(metadata)
     streamer = lambda do |chunk, remaining_bytes, total_bytes|
-      logstash_sender.sender(chunk.force_encoding('utf-8').encode('utf-8'))
+      begin
+        chunk = chunk.force_encoding('utf-8').encode('utf-8')
+        # puts "Logging ", chunk
+        logstash_sender.sender(chunk) #.force_encoding('utf-8').encode('utf-8'))
+      rescue Exception => e
+        puts "Failed to encode chunk", chunk, e
+      end
     end
     connection.get(path_for(:logs), opts, :response_block => streamer)
   end
@@ -93,7 +99,7 @@ class LogstashSender
       TCPSocket.open(@host, @port)
     rescue Exception => e
       sleep 5
-      puts "Unable to connect to the Logstash TCP Listner.".yellow
+      puts "Unable to connect to the Logstash TCP Listner (#{@host}:#{@port}).".yellow
       puts "Please check https://github.com/MaksymBilenko/Docker2Logstash/blob/master/README.md".red
       puts e.to_s.red
       retry
