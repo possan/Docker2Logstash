@@ -9,7 +9,7 @@ class Container < Docker::Container
   def logs(metadata,opts = {})
     logstash_sender = LogstashSender.new(metadata)
     streamer = lambda do |chunk, remaining_bytes, total_bytes|
-      logstash_sender.sender(chunk.force_encoding('iso-8859-1').encode('utf-8'))
+      logstash_sender.sender(chunk.force_encoding('utf-8').encode('utf-8'))
     end
     connection.get(path_for(:logs), opts, :response_block => streamer)
   end
