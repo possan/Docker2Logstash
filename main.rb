@@ -14,7 +14,7 @@ class Container < Docker::Container
         # puts "Logging ", chunk
         logstash_sender.sender(chunk) #.force_encoding('utf-8').encode('utf-8'))
       rescue Exception => e
-        puts "Failed to encode chunk", chunk, e
+        # puts "Failed to encode chunk", chunk, e
       end
     end
     connection.get(path_for(:logs), opts, :response_block => streamer)
